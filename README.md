@@ -80,9 +80,8 @@ The model’s confidence (predicted win probabilities) aligns well with actual o
 Confusion Matrix Highlights
 The surface Elo model correctly predicted 168 wins and 176 losses, with some misclassifications (71 false positives, 63 false negatives).
 Predictions are roughly balanced between predicting Player 1 and Player 2 wins.
-What This Means
 
-The model’s ~72% accuracy on Wimbledon 2025 is a strong result given the inherent unpredictability of tennis.
+What This Means ist that the model’s ~73% accuracy on Wimbledon 2025 is a strong result given the inherent unpredictability of tennis.
 Surface-specific Elo ratings add meaningful predictive power.
 
 The model can be a useful tool for analysts or enthusiasts looking to understand match outcomes better.
