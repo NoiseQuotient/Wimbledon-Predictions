@@ -9,7 +9,6 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 
-# Define rounds order globally or per tournament
 rounds_order = [
     "1st Round Qualifying",
     "2nd Round Qualifying",
@@ -31,7 +30,7 @@ def get_score_from_stats_page(driver, stats_url):
     try:
         driver.get(stats_url)
 
-        # Try multiple possible scoreboard containers
+      
         selectors = ["div.scores", "div.match-stats-scores", "section.match-stats"]
         container = None
         for sel in selectors:
@@ -44,12 +43,12 @@ def get_score_from_stats_page(driver, stats_url):
             except:
                 continue
         if not container:
-            raise ValueError("❌ No scoreboard container found")
+            raise ValueError("No scoreboard container found")
 
         soup = BeautifulSoup(driver.page_source, "html.parser")
         block = soup.select_one(container)
 
-        # --- Extract duration ---
+        #Extracting duration
         duration = ""
         dur = block.find("span", string=re.compile(r"^\d{1,2}:\d{2}:\d{2}$"))
         if dur:
@@ -58,18 +57,18 @@ def get_score_from_stats_page(driver, stats_url):
             dur2 = soup.find(string=re.compile(r"^\s*\d{1,2}:\d{2}:\d{2}\s*$"))
             if dur2:
                 duration = dur2.strip()
-        print(f"⏱ Duration: {duration}")
+        print(f"Duration: {duration}")
 
-        # --- Extract match date ---
+        #Extracting match date
         match_date = ""
         date_elem = soup.find("span", string=re.compile(r"\d{1,2}\s+\w+\s+\d{4}"))
         if date_elem:
             match_date = date_elem.strip()
-        print(f"📅 Date: {match_date}")
+        print(f"Date: {match_date}")
 
-        # --- Extract scores ---
+        #Extracting scores
         numbers = [s.get_text(strip=True) for s in block.select("span") if s.get_text(strip=True).isdigit()]
-        print("👉 All numbers:", numbers)
+        print("All numbers:", numbers)
 
         if len(numbers) < 4:
             return "", duration, match_date
@@ -81,8 +80,8 @@ def get_score_from_stats_page(driver, stats_url):
         left = numbers[:half]
         right = numbers[half:]
 
-        print("👉 Player A:", left)
-        print("👉 Player B:", right)
+        print("Player A:", left)
+        print("Player B:", right)
 
         sets, i = [], 0
         while i < len(left):
@@ -104,7 +103,7 @@ def get_score_from_stats_page(driver, stats_url):
         return " ".join(sets), duration, match_date
 
     except Exception as e:
-        print(f"  ⚠️ Stats page score extraction failed: {e}")
+        print(f"Stats page score extraction failed: {e}")
         return "", "", ""
 
 def get_dates_by_round(driver):
@@ -112,10 +111,10 @@ def get_dates_by_round(driver):
     try:
         soup = BeautifulSoup(driver.page_source, "html.parser")
 
-        # Each day group on results page
+        
         day_groups = soup.select("div.tournament-day")
         for day in day_groups:
-            # Header date
+            
             h4 = day.find("h4")
             if not h4:
                 continue
@@ -127,7 +126,7 @@ def get_dates_by_round(driver):
             except Exception:
                 continue
 
-            # Accordion items (round sections) under this day
+            
             accordions = day.select("div.atp_accordion-item")
             for acc in accordions:
                 strong = acc.select_one("div.match-header strong")
@@ -137,40 +136,38 @@ def get_dates_by_round(driver):
                     if round_name:
                         dates_by_round[round_name] = date_str
     except Exception as e:
-        print(f"⚠️ Error extracting dates by round: {e}")
+        print(f"Error extracting dates by round: {e}")
 
     return dates_by_round
 
 def get_tourney_dates(driver):
-    # Initialize return variables
+    
     tourney_start_date_dt = None
     tourney_final_date_dt = None
 
     try:
-        # Wait up to 15 seconds for the date span to be present
+        
         date_span = WebDriverWait(driver, 15).until(
             EC.presence_of_element_located((By.XPATH, "//div[@class='date-location']/span[2]"))
         )
         date_text = date_span.text.strip()
-        print(f"🏆 Tournament dates raw: {date_text}")
+        print(f"Tournament dates raw: {date_text}")
 
-        # Remove commas
+    
         date_text = date_text.replace(',', '')
-        
-        # Extract the year
         year_match = re.search(r"\d{4}", date_text)
         year = year_match.group(0) if year_match else None
 
         if not year:
             return None, None
 
-        # Split on dash to check for ranges
+        
         if "-" in date_text:
             start_part, end_part = date_text.split("-", 1)
             start_part = start_part.strip()
             end_part = end_part.strip()
             
-            # Determine month (assume same month if not repeated in end)
+            
             month_match = re.search(r"[A-Za-z]+", end_part)
             if not month_match:
                 month = re.search(r"[A-Za-z]+", start_part).group(0)
@@ -179,7 +176,7 @@ def get_tourney_dates(driver):
             start_date_str = f"{start_part} {year}"
             end_date_str = f"{end_part} {year}"
 
-            # Try multiple formats
+            
             for fmt in ("%d %b %Y", "%d %B %Y"):
                 try:
                     tourney_start_date_dt = datetime.strptime(start_date_str, fmt).date()
@@ -188,7 +185,7 @@ def get_tourney_dates(driver):
                 except:
                     continue
         else:
-            # Single date
+            
             start_date_str = f"{date_text} {year}"
             for fmt in ("%d %b %Y", "%d %B %Y"):
                 try:
@@ -200,7 +197,7 @@ def get_tourney_dates(driver):
         return tourney_start_date_dt, tourney_final_date_dt
 
     except Exception as e:
-        print(f"⚠️ Could not scrape tournament dates: {e}")
+        print(f"Could not scrape tournament dates: {e}")
         return None, None
 
 def duration_to_minutes(duration_str):
@@ -386,12 +383,12 @@ def clean_round_name(raw_round: str) -> str:
     if not raw_round:
         return ""
 
-    # Extract text before dash if present
+    
     clean = raw_round.split("-", 1)[0].strip()
 
     lower_clean = clean.lower()
 
-    # Normalize common rounds
+    
     if "final" in lower_clean and "semi" not in lower_clean and "quarter" not in lower_clean:
         return "Final"
     elif "semi" in lower_clean:
@@ -399,7 +396,7 @@ def clean_round_name(raw_round: str) -> str:
     elif "quarter" in lower_clean:
         return "Quarterfinal"
 
-    # For other rounds like "Round of 16", "3rd Round Qualifying", etc, return as-is
+    
     return clean
 
 def extract_date_from_round(raw_round: str) -> str:
@@ -490,10 +487,10 @@ def get_h2h_data(driver, p1_profile, p2_profile):
             h2h_data[f"P2 {k}"] = v
         return h2h_data
     except Exception as e:
-        print(f"  ⚠️ H2H scrape failed: {e}")
+        print(f"H2H scrape failed: {e}")
         return {}
 
-# Mapping normalized stat names to exact Excel column headers
+
 stat_name_map = {
     "serverating": "Serve Rating",
     "aces": "Aces",
@@ -514,7 +511,7 @@ stat_name_map = {
     "netpointswon": "Net Points Won",
     "winners": "Winners",
     "unforcederrors": "Unforced Errors",
-    # Add more as needed
+    
 }
 
 def normalize_stat_name(name):
@@ -534,29 +531,29 @@ def get_match_stats(driver, stats_url):
 
     def safe_text(elem):
         try:
-            # Try <a> first
+            
             return elem.find_element(By.TAG_NAME, "a").text.strip()
         except:
             try:
-                # Then <span>
+                
                 return elem.find_element(By.TAG_NAME, "span").text.strip()
             except:
                 return elem.text.strip()
 
     driver.get(stats_url)
-    time.sleep(5)  # wait for page load
+    time.sleep(5)  
 
     stat_tiles = driver.find_elements(By.CSS_SELECTOR, "div.statTileWrapper")
 
     for tile in stat_tiles:
         try:
             desktop_view = tile.find_element(By.CSS_SELECTOR, "div.desktopView")
-            # Stat name
+            
             stat_name_raw = desktop_view.find_element(By.CSS_SELECTOR, "div.labelWrappper > div.labelBold").text.strip()
 
             mapped_name = map_stat_name(stat_name_raw)
             if mapped_name is None:
-                # Skip unknown stat names
+                
                 continue
 
             # Player 1 container
@@ -617,10 +614,9 @@ def build_score_with_tiebreaks(p1_scores_raw, p2_scores_raw):
         j += 1
     return " ".join(sets)
 
-# === MAIN SCRIPT ===
+#MAIN SCRIPT
 driver = uc.Chrome(version_main=140)
 
-# 🔹 1. MULTIPLE TOURNAMENT URLs - ADD YOUR TOURNAMENTS HERE
 tournament_urls = [
     "https://www.atptour.com/en/scores/archive/eastbourne/741/2025/results",
     "https://www.atptour.com/en/scores/archive/mallorca/8994/2025/results",
@@ -658,12 +654,11 @@ tournament_urls = [
     "https://www.atptour.com/en/scores/archive/hong-kong/336/2025/results",
     "https://www.atptour.com/en/scores/archive/brisbane/339/2025/results",
     "https://www.atptour.com/en/scores/archive/perth-sydney/9900/2025/country-results",
-    # Add more tournament URLs here
 ]
 
 all_data = []
 
-# 🔹 2. LOOP THROUGH ALL TOURNAMENTS
+#Loop through all tournaments
 for url in tournament_urls:
     print(f"\n=== Processing tournament: {url} ===")
     driver.get(url)
@@ -674,17 +669,17 @@ for url in tournament_urls:
             EC.element_to_be_clickable((By.XPATH, "//button[contains(., 'Accept')]"))
         )
         accept_btn.click()
-        print("✅ Cookies accepted")
+        print("Cookies accepted")
     except:
-        print("⚠️ No cookie banner")
+        print("No cookie banner")
 
-    # Get tournament name
+    
     try:
         tournament = driver.find_element(By.CSS_SELECTOR, "h3.title a").text.strip()
     except:
         tournament = "Unknown Tournament"
 
-    # Get tournament start and end dates from the correct element
+    
     tourney_start_date_dt, tourney_final_date_dt = get_tourney_dates(driver)
 
     surface = get_surface_for_tournament(tournament)
@@ -692,14 +687,14 @@ for url in tournament_urls:
     dates_by_round = get_dates_by_round(driver)
     print(f"Dates extraites par round : {dates_by_round}")
 
-    # Wait for accordion items to load
+    
     WebDriverWait(driver, 20).until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, "div.atp_accordion-item"))
     )
 
     accordion_items = driver.find_elements(By.CSS_SELECTOR, "div.atp_accordion-item")
 
-    # Expand all accordion sections
+    
     for accordion in accordion_items:
         try:
             if accordion.get_attribute("data-default-state") == "close":
@@ -707,7 +702,7 @@ for url in tournament_urls:
                 driver.execute_script("arguments[0].click();", toggler)
                 time.sleep(1)
         except Exception as e:
-            print(f"⚠️ Couldn't expand section: {e}")
+            print(f"Couldn't expand section: {e}")
 
     time.sleep(2)
 
@@ -728,11 +723,11 @@ for url in tournament_urls:
         except:
             round_name = "Unknown Round"
 
-        # Date (parse directly from accordion text)
+        
         date_info = None
         date_text_raw = acc.text.strip()
 
-        # Try regex to extract e.g. "Sat, 23 August, 2025"
+       
         m = re.search(r"(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s+\d{1,2}\s+[A-Za-z]+,\s+\d{4}", date_text_raw)
         if m:
             raw_date_str = m.group(0)
@@ -740,7 +735,7 @@ for url in tournament_urls:
                 dt = datetime.strptime(raw_date_str, "%a, %d %B, %Y")
                 date_info = dt.strftime("%Y-%m-%d")
             except Exception as e:
-                print(f"⚠️ Failed to parse {raw_date_str}: {e}")
+                print(f"Failed to parse {raw_date_str}: {e}")
 
         print(f"[Date] Accordion raw: {date_text_raw[:50]!r} -> parsed date_info: {date_info}")
 
@@ -771,7 +766,7 @@ for url in tournament_urls:
                             profile_links.append(None)
                             iocs.append(None)
             except Exception as e:
-                print(f"⚠️ Error extracting players: {e}")
+                print(f"Error extracting players: {e}")
 
             print(f"Players found: {players}")
             if len(players) == 0:
@@ -791,10 +786,10 @@ for url in tournament_urls:
                 else:
                     score_text = ""
             except Exception as e:
-                print(f"⚠️ Error extracting full score: {e}")
+                print(f"Error extracting full score: {e}")
                 score_text = ""
 
-            # Extract stats URL (optional)
+            
             stats_link = None
             try:
                 selectors = [
@@ -834,28 +829,28 @@ for url in tournament_urls:
             else:
                 print("Skipping match due to insufficient players")
 
-    # Process each match for this tournament
+    
     for i, mi in enumerate(match_info, 1):
-        print(f"🔄 Processing match {i}/{len(match_info)}: {mi['Player1']} vs {mi['Player2']} [{mi['Round']}]")
+        print(f"Processing match {i}/{len(match_info)}: {mi['Player1']} vs {mi['Player2']} [{mi['Round']}]")
 
-        # Prefer stats page date if available
+        
         match_date = mi.get("Date")
         stats_url = mi.get("Stats_URL")
         duration = ""
         score = ""
 
-        # 1️⃣ Get score, duration, and date from stats page
+        
         if stats_url and isinstance(stats_url, str):
-            print("  🎯 Getting score, duration, and date from stats page...")
+            print("Getting score, duration, and date from stats page...")
             score, duration, match_date_stats = get_score_from_stats_page(driver, stats_url)
             if duration:
                 duration_minutes = duration_to_minutes(duration)
-            # ⚠️ Ne pas écraser si date déjà extraite par round
+            
             if not match_date and match_date_stats:
                 match_date = match_date_stats
 
         else:
-            print("  ⚠️ No Stats_URL found, skipping stats page extraction")
+            print("No Stats_URL found, skipping stats page extraction")
             duration_minutes = None
 
         winner, loser, w_sets, l_sets = determine_winner_from_score(mi.get("Score", ""), mi["Player1"], mi["Player2"])
@@ -881,26 +876,26 @@ for url in tournament_urls:
             "BestOf": 5 if get_tournament_level(mi["Tournament"]) == "G" else 3,
         }
 
-        # 2️⃣ Attach H2H data (bulletproof)
-        print("  📊 Getting H2H data...")
+        #Attaching H2H data
+        print("Getting H2H data...")
         h2h_data = get_h2h_data(driver, mi.get("P1_Profile"), mi.get("P2_Profile"))
         row_data.update(h2h_data)
 
-        # 3️⃣ Attach Match Stats (bulletproof)
+        #Attaching Match Stats
         if stats_url and isinstance(stats_url, str):
-            print("  📈 Getting match stats (bulletproof)...")
+            print("Getting match stats (bulletproof)...")
             stats_data = get_match_stats(driver, stats_url)
             row_data.update(stats_data)
-            print("  ✅ Match stats extracted")
+            print("Match stats extracted")
         else:
-            print("  ⚠️ No Stats_URL, skipping match stats")
+            print("No Stats_URL, skipping match stats")
 
         all_data.append(row_data)
-        print(f"  ✅ Match {i} done\n")
+        print(f"Match {i} done\n")
 
-    print(f"✅ Tournament {tournament} completed. Matches: {len(match_info)}")
+    print(f"Tournament {tournament} completed. Matches: {len(match_info)}")
 
-    # 📝 Save immediately after each tournament
+   
     output_file = "ATP_2025_Competitions.xlsx"
     new_data_df = pd.DataFrame(all_data)
 
@@ -913,7 +908,7 @@ for url in tournament_urls:
         combined_df = new_data_df
 
     combined_df.to_excel(output_file, index=False)
-    print(f"💾 Saved {len(new_data_df)} total matches so far into {output_file}")
+    print(f"Saved {len(new_data_df)} total matches so far into {output_file}")
 
-    # 🔄 Reset list before moving to next tournament
+    
     all_data = []
