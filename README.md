@@ -75,7 +75,9 @@ The surface-specific Elo model consistently outperforms the general model across
 
 <img width="1280" height="636" alt="Model_Accuracy_by_Round" src="https://github.com/user-attachments/assets/26db4bb9-9379-4bdf-9c7a-bc0294ec5906" />
 
+
 Player-Level Insights
+
 Some players had perfect prediction accuracy in Wimbledon 2025 matches (e.g., Facundo Diaz Acosta, Thiago Seyboth Wild).
 The model’s confidence (predicted win probabilities) aligns well with actual outcomes in many cases.
 
@@ -83,8 +85,33 @@ Confusion Matrix Highlights
 The surface Elo model correctly predicted 168 wins and 176 losses, with some misclassifications (71 false positives, 63 false negatives).
 Predictions are roughly balanced between predicting Player 1 and Player 2 wins.
 
+<img width="1280" height="636" alt="Streamlined Feature Correlation Heatmap" src="https://github.com/user-attachments/assets/5bd37a06-cdb2-4dc7-8589-15eb010f06d2" />
+
+
 What This Means ist that the model’s ~73% accuracy on Wimbledon 2025 is a strong result given the inherent unpredictability of tennis.
 Surface-specific Elo ratings add meaningful predictive power.
+
+| Round         | Player 1         | Player 2        | PredProb Player 1 | PredProb Player 2 | Predicted Winner (Surf) | Actual Winner   | Correct (Surf) |
+|---------------|------------------|-----------------|-------------------|-------------------|-------------------------|-----------------|----------------|
+| Round of 32   | August Holmgren  | Alex de Minaur  | 37.7%             | 62.3%             | Alex de Minaur          | Alex de Minaur  | True           |
+| Round of 32   | Sebastian Ofner  | Grigor Dimitrov | 30.7%             | 69.3%             | Grigor Dimitrov         | Grigor Dimitrov | True           |
+| Round of 32   | Jakub Mensik     | Flavio Cobolli  | 61.7%             | 38.3%             | Jakub Mensik            | Flavio Cobolli  | False          |
+| Round of 32   | Jaume Munar      | Marin Cilic     | 53.8%             | 46.2%             | Jaume Munar             | Marin Cilic     | False          |
+| Round of 16   | Carlos Alcaraz   | Andrey Rublev   | 83.2%             | 16.8%             | Carlos Alcaraz          | Carlos Alcaraz  | True           |
+| Round of 16   | Cameron Norrie   | Nicolas Jarry   | 73.6%             | 26.4%             | Cameron Norrie          | Cameron Norrie  | True           |
+| Round of 16   | Kamil Majchrzak  | Karen Khachanov | 27.6%             | 72.4%             | Karen Khachanov         | Karen Khachanov | True           |
+| Round of 16   | Jordan Thompson  | Taylor Fritz    | 19.3%             | 80.7%             | Taylor Fritz            | Taylor Fritz    | True           |
+| Round of 16   | Ben Shelton      | Lorenzo Sonego  | 71.6%             | 28.4%             | Ben Shelton             | Ben Shelton     | True           |
+| Round of 16   | Jannik Sinner    | Grigor Dimitrov | 70.8%             | 29.2%             | Jannik Sinner           | Grigor Dimitrov | False          |
+| Round of 16   | Flavio Cobolli   | Marin Cilic     | 62.3%             | 37.7%             | Flavio Cobolli          | Flavio Cobolli  | True           |
+| Round of 16   | Novak Djokovic   | Alex de Minaur  | 70.7%             | 29.3%             | Novak Djokovic          | Novak Djokovic  | True           |
+| Quarterfinals | Flavio Cobolli   | Novak Djokovic  | 13.5%             | 86.5%             | Novak Djokovic          | Novak Djokovic  | True           |
+| Quarterfinals | Cameron Norrie   | Carlos Alcaraz  | 12.9%             | 87.1%             | Carlos Alcaraz          | Carlos Alcaraz  | True           |
+| Quarterfinals | Karen Khachanov  | Taylor Fritz    | 30.2%             | 69.8%             | Taylor Fritz            | Taylor Fritz    | True           |
+| Quarterfinals | Ben Shelton      | Jannik Sinner   | 16.4%             | 83.6%             | Jannik Sinner           | Jannik Sinner   | True           |
+| Semifinals    | Carlos Alcaraz   | Taylor Fritz    | 79.7%             | 20.3%             | Carlos Alcaraz          | Carlos Alcaraz  | True           |
+| Semifinals    | Jannik Sinner    | Novak Djokovic  | 49.8%             | 50.2%             | Novak Djokovic          | Jannik Sinner   | False          |
+| The Final     | Carlos Alcaraz   | Jannik Sinner   | 75.0%             | 25.0%             | Carlos Alcaraz          | Jannik Sinner   | False          |
 
 The model can be a useful tool for analysts or enthusiasts looking to understand match outcomes better.
 There is room for improvement by adding more player-specific features, refining hyperparameters, or incorporating bookmaker odds.
