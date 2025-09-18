@@ -468,7 +468,7 @@ def slam_sandbox(df, slam_name):
             xgb.fit(X_train, y_train)
             preds = xgb.predict(X_test)
             acc = accuracy_score(y_test, preds)
-            print(f"🏆 {slam_name} 2025 Test Accuracy: {acc:.3f}")
+            print(f"{slam_name} 2025 Test Accuracy: {acc:.3f}")
             print(classification_report(y_test, preds, digits=3))
         else:
             print(f"️ No {slam_name} 2025 matches found.")
@@ -736,10 +736,7 @@ else:
 
 # WIMBLEDON 2025 DETAILED ANALYSIS
 
-print("\\n" + "="*60)
 print("WIMBLEDON 2025 DETAILED PREDICTIONS ANALYSIS")
-print("="*60)
-
 
 df_wim_2025 = df[wim_2025_mask].copy()
 
@@ -861,9 +858,7 @@ display_cols_surf = [
 ]
 page_size = 10
 total_rows = len(df_display)
-print("\\n" + "="*80)
-print("DETAILED PREDICTIONS - SURFACE-SPECIFIC ELO MODEL (DEDUPED)")
-print("="*80)
+print("DETAILED PREDICTIONS - SURFACE-SPECIFIC ELO MODEL")
 for start in range(0, total_rows, page_size):
     end = min(start + page_size, total_rows)
     print(f"\\nRows {start+1} to {end}:")
