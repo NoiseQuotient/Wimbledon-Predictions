@@ -63,9 +63,9 @@ Training size: 263,356 matches; Test size: 478 matches. We find the best hyperpa
 Top features: Rank difference (log scale), Elo momentum, Elo difference.
 Wimbledon-only subset model (trained and tested only on Wimbledon data):
 
-Test accuracy on Wimbledon 2025: 72.0%
+Test accuracy on Wimbledon 2025: 73.0%
 This model outperformed the general model, showing the value of surface-specific ratings.
-Balanced precision and recall around 72%.
+Balanced precision and recall around 73%.
 
 ## Detailed Wimbledon 2025 Analysis
 
