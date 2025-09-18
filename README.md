@@ -73,7 +73,7 @@ Accuracy by round shows the model performs better in later rounds (e.g., quarter
 Early rounds have lower but still respectable accuracy (~60-80%).
 The surface-specific Elo model consistently outperforms the general model across most rounds.
 
-![Model accuracy by round](results/model_accuracy_by_round.png)
+![Model accuracy by round](Wimbledon-Predictions/model_accuracy_by_round.png)
 
 Player-Level Insights
 Some players had perfect prediction accuracy in Wimbledon 2025 matches (e.g., Facundo Diaz Acosta, Thiago Seyboth Wild).
